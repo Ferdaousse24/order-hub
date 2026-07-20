@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/orderhub_db
+    username: orderhub_user
+    password: orderhub_pwd
+
+logging:
+  level:
+    com.orderhub: INFO
+    org.hibernate.SQL: WARN
