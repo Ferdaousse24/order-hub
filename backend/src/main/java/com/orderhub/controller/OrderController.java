@@ -25,4 +25,10 @@ public class OrderController {
         OrderResponse response = orderService.createOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping
+    @Operation(summary = "Lister toutes les commandes")
+    public ResponseEntity<java.util.List<OrderResponse>> getAllOrders() {
+        return ResponseEntity.ok(orderService.getAllOrders());
+    }
 }
