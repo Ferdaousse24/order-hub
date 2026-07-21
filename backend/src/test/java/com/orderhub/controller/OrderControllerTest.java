@@ -94,4 +94,24 @@ class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].customerName").value("Jean Dupont"));
     }
+
+     @Test
+    void shouldReturn200WhenOrderExists() throws Exception {
+        UUID id = UUID.randomUUID();
+        OrderResponse response = new OrderResponse(id, "Jean Dupont", "Clavier", 2, OrderStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
+        when(orderService.getOrderById(id)).thenReturn(response);
+
+        mockMvc.perform(get("/api/orders/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()));
+    }
+
+    @Test
+    void shouldReturn404WhenOrderDoesNotExist() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(orderService.getOrderById(id)).thenThrow(new com.orderhub.exception.OrderNotFoundException(id));
+
+        mockMvc.perform(get("/api/orders/{id}", id))
+                .andExpect(status().isNotFound());
+    }
 }
