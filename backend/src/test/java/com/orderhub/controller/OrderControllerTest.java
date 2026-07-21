@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 @WebMvcTest(OrderController.class)
 @WithMockUser // Basic Auth arrivera en Sprint 2 (ORD-13) ; on neutralise la sécurité par défaut ici
 class OrderControllerTest {
@@ -69,5 +70,28 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
+    }
+
+     @Test
+    void shouldReturn200WithEmptyListWhenNoOrders() throws Exception {
+        when(orderService.getAllOrders()).thenReturn(java.util.List.of());
+
+        mockMvc.perform(get("/api/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void shouldReturn200WithOrdersList() throws Exception {
+        OrderResponse response = new OrderResponse(
+                UUID.randomUUID(), "Jean Dupont", "Clavier mécanique", 2,
+                OrderStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
+
+        when(orderService.getAllOrders()).thenReturn(java.util.List.of(response));
+
+        mockMvc.perform(get("/api/orders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].customerName").value("Jean Dupont"));
     }
 }

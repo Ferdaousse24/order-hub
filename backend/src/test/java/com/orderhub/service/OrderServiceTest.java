@@ -70,4 +70,23 @@ class OrderServiceTest {
         assertThat(response.id()).isEqualTo(orderId);
         assertThat(response.status()).isEqualTo(OrderStatus.PENDING);
     }
+
+
+    @Test
+    void shouldReturnAllOrders() {
+        Order order1 = Order.builder().id(UUID.randomUUID()).customerName("A").product("P1").quantity(1).status(OrderStatus.PENDING).build();
+        Order order2 = Order.builder().id(UUID.randomUUID()).customerName("B").product("P2").quantity(3).status(OrderStatus.CONFIRMED).build();
+
+        OrderResponse response1 = new OrderResponse(order1.getId(), "A", "P1", 1, OrderStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
+        OrderResponse response2 = new OrderResponse(order2.getId(), "B", "P2", 3, OrderStatus.CONFIRMED, LocalDateTime.now(), LocalDateTime.now());
+
+        when(orderRepository.findAll()).thenReturn(java.util.List.of(order1, order2));
+        when(orderMapper.toResponse(order1)).thenReturn(response1);
+        when(orderMapper.toResponse(order2)).thenReturn(response2);
+
+        java.util.List<OrderResponse> result = orderService.getAllOrders();
+
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(response1, response2);
+    }
 }
