@@ -89,4 +89,29 @@ class OrderServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result).containsExactly(response1, response2);
     }
+
+    @Test
+    void shouldReturnOrderWhenIdExists() {
+        UUID id = UUID.randomUUID();
+        Order order = Order.builder().id(id).customerName("A").product("P1").quantity(1).status(OrderStatus.PENDING).build();
+        OrderResponse expected = new OrderResponse(id, "A", "P1", 1, OrderStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
+
+        when(orderRepository.findById(id)).thenReturn(java.util.Optional.of(order));
+        when(orderMapper.toResponse(order)).thenReturn(expected);
+
+        OrderResponse result = orderService.getOrderById(id);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenIdDoesNotExist() {
+        UUID id = UUID.randomUUID();
+        when(orderRepository.findById(id)).thenReturn(java.util.Optional.empty());
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.orderhub.exception.OrderNotFoundException.class,
+                () -> orderService.getOrderById(id)
+        );
+    }
 }

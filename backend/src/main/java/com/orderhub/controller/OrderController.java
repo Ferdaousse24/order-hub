@@ -31,4 +31,9 @@ public class OrderController {
     public ResponseEntity<java.util.List<OrderResponse>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
+
+    @ExceptionHandler(com.orderhub.exception.OrderNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(com.orderhub.exception.OrderNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }
