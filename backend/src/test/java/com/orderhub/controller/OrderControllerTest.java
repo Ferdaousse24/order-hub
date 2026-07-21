@@ -22,6 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+
 @WebMvcTest(OrderController.class)
 @WithMockUser // Basic Auth arrivera en Sprint 2 (ORD-13) ; on neutralise la sécurité par défaut ici
 class OrderControllerTest {
@@ -112,6 +114,35 @@ class OrderControllerTest {
         when(orderService.getOrderById(id)).thenThrow(new com.orderhub.exception.OrderNotFoundException(id));
 
         mockMvc.perform(get("/api/orders/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn200WhenUpdatingExistingOrder() throws Exception {
+        UUID id = UUID.randomUUID();
+        OrderRequest request = new OrderRequest("A Modifié", "P1 Modifié", 5);
+        OrderResponse response = new OrderResponse(id, "A Modifié", "P1 Modifié", 5, OrderStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
+
+        when(orderService.updateOrder(org.mockito.ArgumentMatchers.eq(id), any(OrderRequest.class))).thenReturn(response);
+
+        mockMvc.perform(put("/api/orders/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerName").value("A Modifié"));
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistentOrder() throws Exception {
+        UUID id = UUID.randomUUID();
+        OrderRequest request = new OrderRequest("A", "P1", 1);
+
+        when(orderService.updateOrder(org.mockito.ArgumentMatchers.eq(id), any(OrderRequest.class)))
+                .thenThrow(new com.orderhub.exception.OrderNotFoundException(id));
+
+        mockMvc.perform(put("/api/orders/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
 }

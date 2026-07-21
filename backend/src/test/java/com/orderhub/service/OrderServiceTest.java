@@ -114,4 +114,33 @@ class OrderServiceTest {
                 () -> orderService.getOrderById(id)
         );
     }
+
+    @Test
+    void shouldUpdateOrderWhenIdExists() {
+        UUID id = UUID.randomUUID();
+        Order existing = Order.builder().id(id).customerName("A").product("P1").quantity(1).status(OrderStatus.PENDING).build();
+        OrderRequest updateRequest = new OrderRequest("A Modifié", "P1 Modifié", 5);
+        OrderResponse expected = new OrderResponse(id, "A Modifié", "P1 Modifié", 5, OrderStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
+
+        when(orderRepository.findById(id)).thenReturn(java.util.Optional.of(existing));
+        when(orderRepository.save(any(Order.class))).thenReturn(existing);
+        when(orderMapper.toResponse(existing)).thenReturn(expected);
+
+        OrderResponse result = orderService.updateOrder(id, updateRequest);
+
+        assertThat(result.customerName()).isEqualTo("A Modifié");
+        verify(orderRepository).save(existing);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingNonExistentOrder() {
+        UUID id = UUID.randomUUID();
+        OrderRequest updateRequest = new OrderRequest("A", "P1", 1);
+        when(orderRepository.findById(id)).thenReturn(java.util.Optional.empty());
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.orderhub.exception.OrderNotFoundException.class,
+                () -> orderService.updateOrder(id, updateRequest)
+        );
+    }
 }
