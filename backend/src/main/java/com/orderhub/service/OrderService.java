@@ -37,4 +37,10 @@ public class OrderService {
                 .map(orderMapper::toResponse)
                 .toList();
     }
+
+    public OrderResponse getOrderById(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new com.orderhub.exception.OrderNotFoundException(id));
+        return orderMapper.toResponse(order);
+    }
 }

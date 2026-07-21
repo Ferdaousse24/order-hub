@@ -36,4 +36,10 @@ public class OrderController {
     public ResponseEntity<String> handleNotFound(com.orderhub.exception.OrderNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Consulter une commande par son identifiant")
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable java.util.UUID id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
 }
