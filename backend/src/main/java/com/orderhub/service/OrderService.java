@@ -30,4 +30,11 @@ public class OrderService {
         Order saved = orderRepository.save(order);
         return orderMapper.toResponse(saved);
     }
+
+    public java.util.List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(orderMapper::toResponse)
+                .toList();
+    }
 }
