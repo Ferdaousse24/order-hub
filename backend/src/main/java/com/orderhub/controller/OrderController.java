@@ -42,4 +42,11 @@ public class OrderController {
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable java.util.UUID id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Modifier une commande existante")
+    public ResponseEntity<OrderResponse> updateOrder(@PathVariable java.util.UUID id,
+                                                       @Valid @RequestBody OrderRequest request) {
+        return ResponseEntity.ok(orderService.updateOrder(id, request));
+    }
 }

@@ -43,4 +43,16 @@ public class OrderService {
                 .orElseThrow(() -> new com.orderhub.exception.OrderNotFoundException(id));
         return orderMapper.toResponse(order);
     }
+
+     public OrderResponse updateOrder(java.util.UUID id, OrderRequest request) {
+        Order existing = orderRepository.findById(id)
+                .orElseThrow(() -> new com.orderhub.exception.OrderNotFoundException(id));
+
+        existing.setCustomerName(request.customerName());
+        existing.setProduct(request.product());
+        existing.setQuantity(request.quantity());
+
+        Order saved = orderRepository.save(existing);
+        return orderMapper.toResponse(saved);
+    }
 }
