@@ -143,4 +143,25 @@ class OrderServiceTest {
                 () -> orderService.updateOrder(id, updateRequest)
         );
     }
+
+    @Test
+    void shouldDeleteOrderWhenIdExists() {
+        UUID id = UUID.randomUUID();
+        when(orderRepository.existsById(id)).thenReturn(true);
+
+        orderService.deleteOrder(id);
+
+        verify(orderRepository).deleteById(id);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonExistentOrder() {
+        UUID id = UUID.randomUUID();
+        when(orderRepository.existsById(id)).thenReturn(false);
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.orderhub.exception.OrderNotFoundException.class,
+                () -> orderService.deleteOrder(id)
+        );
+    }
 }
