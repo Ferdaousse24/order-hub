@@ -17,12 +17,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @WebMvcTest(OrderController.class)
 @WithMockUser // Basic Auth arrivera en Sprint 2 (ORD-13) ; on neutralise la sécurité par défaut ici
@@ -143,6 +145,26 @@ class OrderControllerTest {
         mockMvc.perform(put("/api/orders/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn204WhenDeletingExistingOrder() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/orders/{id}", id))
+                .andExpect(status().isNoContent());
+
+        verify(orderService).deleteOrder(id);
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistentOrder() throws Exception {
+        UUID id = UUID.randomUUID();
+        org.mockito.Mockito.doThrow(new com.orderhub.exception.OrderNotFoundException(id))
+                .when(orderService).deleteOrder(id);
+
+        mockMvc.perform(delete("/api/orders/{id}", id))
                 .andExpect(status().isNotFound());
     }
 }

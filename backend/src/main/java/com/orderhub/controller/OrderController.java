@@ -49,4 +49,11 @@ public class OrderController {
                                                        @Valid @RequestBody OrderRequest request) {
         return ResponseEntity.ok(orderService.updateOrder(id, request));
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer une commande")
+    public ResponseEntity<Void> deleteOrder(@PathVariable java.util.UUID id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
+    }
 }
