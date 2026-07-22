@@ -55,4 +55,11 @@ public class OrderService {
         Order saved = orderRepository.save(existing);
         return orderMapper.toResponse(saved);
     }
+
+    public void deleteOrder(java.util.UUID id) {
+        if (!orderRepository.existsById(id)) {
+            throw new com.orderhub.exception.OrderNotFoundException(id);
+        }
+        orderRepository.deleteById(id);
+    }
 }
